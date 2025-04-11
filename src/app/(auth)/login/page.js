@@ -7,7 +7,7 @@ import api from "@/lib/api";
 export default function Page() {
   const [emailId, setEmailId] = useState("");
   const [password, setPassword] = useState("");
-  const { dispatch, isAuthenticated } = useAuth();
+  const { dispatch, isAuthenticated, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
