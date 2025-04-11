@@ -27,6 +27,8 @@ async function handleProxy(req, params) {
 
   const headers = new Headers(req.headers);
   headers.set("host", new URL(backendUrl).host);
+  headers.set("accept-encoding", "identity");
+  headers.delete("content-length");
 
   const fetchOptions = {
     method: req.method,
