@@ -14,7 +14,7 @@ export default function Page() {
     e.preventDefault();
     try {
       const res = await api.post("/login", { emailId, password });
-      dispatch({ type: "LOGIN", payload: res.data.user });
+      dispatch({ type: "LOGIN", payload: res });
       router.push("/feed");
     } catch (err) {
       console.error(err);
@@ -23,7 +23,7 @@ export default function Page() {
 
   return (
     <div>
-      <fieldset className="fieldset w-xs bg-base-200 border border-base-300 p-4 rounded-box">
+      <fieldset className="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
         <legend className="fieldset-legend">Login</legend>
 
         <label className="fieldset-label">Email</label>

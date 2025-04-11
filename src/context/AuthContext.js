@@ -15,7 +15,7 @@ const authReducer = (state, action) => {
     case "LOGIN":
       return {
         ...state,
-        user: action.payload,
+        user: action.payload?.userData,
         isAuthenticated: true,
       };
     case "LOGOUT":
@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await api.get(`/profile/view`);
+        const res = await api.get(`/profile`);
         dispatch({ type: "LOGIN", payload: res.data });
       } catch (err) {
         console.log("Not authenticated");
