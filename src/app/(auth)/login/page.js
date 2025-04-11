@@ -15,7 +15,7 @@ export default function Page() {
     try {
       const res = await api.post("/login", { emailId, password });
       console.log(res);
-      dispatch({ type: "LOGIN", payload: res.data });
+      dispatch({ type: "LOGIN", payload: res.data.userData });
       router.push("/feed");
     } catch (err) {
       console.error(err);

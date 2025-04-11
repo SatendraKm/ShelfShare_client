@@ -15,7 +15,7 @@ const authReducer = (state, action) => {
     case "LOGIN":
       return {
         ...state,
-        user: action.payload?.userData,
+        user: action.payload,
         isAuthenticated: true,
       };
     case "LOGOUT":
@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }) => {
     const fetchUser = async () => {
       try {
         const res = await api.get(`/profile`);
-        dispatch({ type: "LOGIN", payload: res.data });
+        dispatch({ type: "LOGIN", payload: res.data.userData });
       } catch (err) {
         console.log("Not authenticated");
       } finally {
