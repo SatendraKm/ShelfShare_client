@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/api";
@@ -7,8 +7,14 @@ import api from "@/lib/api";
 export default function Page() {
   const [emailId, setEmailId] = useState("");
   const [password, setPassword] = useState("");
-  const { dispatch } = useAuth();
+  const { dispatch, isAuthenticated } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push("/feed");
+    }
+  }, [isAuthenticated]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -16,7 +22,6 @@ export default function Page() {
       const res = await api.post("/login", { emailId, password });
       console.log(res);
       dispatch({ type: "LOGIN", payload: res.data.userData });
-      router.push("/feed");
     } catch (err) {
       console.error(err);
     }
