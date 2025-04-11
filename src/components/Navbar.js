@@ -3,13 +3,18 @@ import React from "react";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/api";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 const Navbar = () => {
   const { dispatch } = useAuth();
+  const router = useRouter();
 
   const logout = async () => {
     await api.post("/logout"); // backend should clear the cookie
+    Cookies.remove("token"); // remove cookie client-side
     dispatch({ type: "LOGOUT" });
+    router.push("/"); // redirect to home page
   };
 
   return (
