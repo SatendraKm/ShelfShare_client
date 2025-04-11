@@ -3,11 +3,13 @@ import { useAuth } from "@/context/AuthContext";
 import React from "react";
 
 const Feed = () => {
-  const { user, loading } = useAuth();
-  return <div>firstName : {loading ? "default name" : user?.firstName}</div>;
+  const { user, loading, isAuthenticated } = useAuth();
 
-  // return <div>firstName : {user?.firstName}</div>;
-  // return <div>firstName : {loding ? user.firstName : "default name"}</div>;
+  if (loading) return <div>Loading...</div>;
+
+  if (!isAuthenticated) return <div>You are not logged in.</div>;
+
+  return <div>firstName : {user?.firstName}</div>;
 };
 
 export default Feed;

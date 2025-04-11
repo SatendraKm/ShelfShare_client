@@ -11,10 +11,10 @@ export default function Page() {
   const router = useRouter();
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (!loading && isAuthenticated) {
       router.push("/feed");
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, loading]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
