@@ -17,6 +17,7 @@ export default function Page() {
 
   useEffect(() => {
     if (!loading && isAuthenticated) {
+      toast.success("Login successful!");
       router.push("/feed");
     }
   }, [isAuthenticated, loading]);
@@ -35,7 +36,6 @@ export default function Page() {
       toast.error("Login failed. Please try again.");
     } finally {
       setIsSubmitting(false);
-      toast.success("Login successful!");
     }
   };
 
