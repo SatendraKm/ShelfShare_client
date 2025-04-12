@@ -11,7 +11,6 @@ import toast from "react-hot-toast";
 const Navbar = () => {
   const { dispatch, isAuthenticated, user } = useAuth();
   const router = useRouter();
-  console.log(user);
 
   const logout = async () => {
     try {
