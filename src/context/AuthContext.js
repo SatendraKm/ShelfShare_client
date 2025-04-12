@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }) => {
     const fetchUser = async () => {
       try {
         const res = await api.get(`/profile`);
-        dispatch({ type: "LOGIN", payload: res.data.userData });
+        dispatch({ type: "LOGIN", payload: res.data.data });
       } catch (err) {
         console.log("Not authenticated");
       } finally {
