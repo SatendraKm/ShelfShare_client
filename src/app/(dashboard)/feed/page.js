@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import api from "@/lib/api";
 import toast from "react-hot-toast";
 import BookCard from "@/components/BookCard";
+import { useDebounce } from "use-debounce";
 
 const FeedPage = () => {
   // States for books and loading indicator
@@ -13,6 +14,7 @@ const FeedPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedGenre, setSelectedGenre] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
+  const [debouncedSearchTerm] = useDebounce(searchTerm, 500);
 
   // States for pagination
   const [page, setPage] = useState(1);
@@ -47,7 +49,7 @@ const FeedPage = () => {
   // Fetch books on component mount and whenever filters/page change
   useEffect(() => {
     fetchBooks();
-  }, [searchTerm, selectedGenre, selectedLocation, page]);
+  }, [debouncedSearchTerm, selectedGenre, selectedLocation, page]);
 
   // Handlers for filters and pagination
   const handleSearchChange = (e) => {
@@ -80,9 +82,12 @@ const FeedPage = () => {
   return (
     <div className="container mx-auto p-6">
       <h1 className="mb-6 text-3xl font-bold">Book Feed</h1>
+      <p className="mb-4 text-sm text-gray-600 underline">
+        {totalBooks} books found
+      </p>
 
       {/* Filter Controls */}
-      <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
         {/* Search Input */}
         <input
           type="text"
@@ -118,6 +123,17 @@ const FeedPage = () => {
           <option value="UK">UK</option>
           {/* Add more locations as needed */}
         </select>
+        <button
+          className="btn btn-sm btn-outline"
+          onClick={() => {
+            setSearchTerm("");
+            setSelectedGenre("");
+            setSelectedLocation("");
+            setPage(1);
+          }}
+        >
+          Reset Filters
+        </button>
       </div>
 
       {/* Loading Indicator */}

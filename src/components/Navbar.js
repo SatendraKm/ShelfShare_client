@@ -119,7 +119,16 @@ const Navbar = () => {
                   <Link href="/profile">Profile</Link>
                 </li>
                 <li>
+                  <Link href="/feed">Feed</Link>
+                </li>
+                <li>
                   <Link href="/book/new">Add a book</Link>
+                </li>
+                <li>
+                  <Link href="/library">Library</Link>
+                </li>
+                <li>
+                  <Link href="/requests">Requests</Link>
                 </li>
                 <li>
                   <button

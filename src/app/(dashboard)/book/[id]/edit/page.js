@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { toast } from "react-hot-toast";
 import api from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
+import Image from "next/image";
 
 export default function EditBookPage() {
   const { id } = useParams();
@@ -107,7 +108,9 @@ export default function EditBookPage() {
 
   return (
     <div className="mx-auto max-w-2xl p-6">
-      <h2 className="mb-4 text-2xl font-bold">Edit Book</h2>
+      <h2 className="mb-4 text-2xl font-bold">
+        Edit- <span className="underline">{book.title}</span>
+      </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
           type="text"
@@ -158,7 +161,9 @@ export default function EditBookPage() {
         <div className="space-y-2">
           <label className="block font-semibold">Book Image</label>
           {imagePreview && (
-            <img
+            <Image
+              width={100}
+              height={100}
               src={imagePreview}
               alt="Preview"
               className="h-40 w-full rounded-lg border object-cover"

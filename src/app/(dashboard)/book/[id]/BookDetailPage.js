@@ -5,168 +5,222 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "react-hot-toast";
-import api from "@/lib/api"; // Adjust the import based on your project structure
-import { useAuth } from "@/context/AuthContext"; // Adjust the import based on your project structure
+import api from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 
 export default function BookDetailPage({ bookId }) {
   const router = useRouter();
+  const { user } = useAuth();
+
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
-
-  const { user } = useAuth(); // Replace with your actual auth logic
-  const currentUser = user;
-  const isOwner = currentUser?._id === book?.ownerId;
-  const isBorrowed = book?.status === "rented";
+  const [isRequesting, setIsRequesting] = useState(false);
+  const [myRequest, setMyRequest] = useState(null);
 
   useEffect(() => {
+    if (!user) return;
+
     const fetchBook = async () => {
       try {
         setLoading(true);
         const res = await api.get(`/book/${bookId}`);
         setBook(res.data.data);
-      } catch (error) {
-        console.error("Error fetching book:", error);
-        toast.error("Book not found.");
+
+        const myPendingRequest = res.data.data.requests.find(
+          (req) => req.requesterId._id === user._id && req.status === "pending",
+        );
+        setMyRequest(myPendingRequest || null);
+      } catch (err) {
+        toast.error("Failed to load book.");
         router.push("/feed");
       } finally {
         setLoading(false);
       }
     };
-    fetchBook();
-  }, [bookId]);
 
-  const handleDelete = async () => {
+    fetchBook();
+  }, [bookId, user]);
+
+  const isOwner = user?._id === book?.ownerId?._id;
+
+  // check if logged-in user has already requested this book
+  const hasRequested = book?.requests?.some(
+    (req) => req.requesterId?._id === user?._id,
+  );
+
+  const handleRequest = async (type) => {
     try {
-      const res = await api.delete(`/book/${bookId}`);
-      console.log(res);
-      if (res.status === 200) {
-        toast.success(res.data.message || "Book deleted successfully.");
-        router.push("/feed");
+      setIsRequesting(true);
+      const res = await api.post(`/request`, {
+        bookId,
+        type,
+      });
+
+      if (res.status === 201) {
+        toast.success(`${type === "rent" ? "Rent" : "Exchange"} request sent!`);
+        router.refresh(); // reload the data
       } else {
-        toast.error("Failed to delete book");
+        toast.error(`Failed to request ${type}.`);
       }
-    } catch (err) {
-      toast.error("Something went wrong");
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Error sending request.");
+    } finally {
+      setIsRequesting(false);
     }
   };
-  const handleBorrow = async () => {
+
+  const handleCancelRequest = async () => {
+    if (!myRequest) return;
     try {
-      console.log("borrow feature is not implemented yet");
-      // const res = await api.post(`/book/${bookId}/borrow`);
-      // if (res.status === 200) {
-      //   toast.success("Borrow request successful!");
-      //   router.refresh();
-      // } else {
-      //   toast.error(res.data?.message || "Failed to borrow");
-      // }
+      setIsRequesting(true);
+      const res = await api.put(`/request/${myRequest._id}/cancel`);
+      toast.success("Request cancelled successfully.");
+      router.refresh();
     } catch (error) {
-      toast.error("Something went wrong");
+      toast.error(
+        error?.response?.data?.message || "Failed to cancel request.",
+      );
+    } finally {
+      setIsRequesting(false);
     }
   };
 
   if (loading || !book) return <div className="p-6">Loading...</div>;
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="mb-6">
+    <div className="container mx-auto px-4 py-8">
+      {/* Back button */}
+      <div className="mb-4">
         <Link href="/feed" className="btn btn-ghost">
-          &larr; Back to Feed
+          ← Back to Feed
         </Link>
       </div>
 
+      {/* Book Card */}
       <div className="card bg-base-100 shadow-xl">
+        {/* Book Image */}
         <figure className="relative h-64 w-full">
           <Image
             src={book.imageUrl || "/default-book.jpg"}
             alt={book.title}
             fill
-            sizes="(max-width: 768px) 100vw, 600px"
             className="rounded-t object-cover"
           />
         </figure>
 
+        {/* Book Details */}
         <div className="card-body">
-          <h2 className="card-title">{book.title}</h2>
-          <p className="text-sm text-gray-600">
-            <span className="font-medium">Author:</span> {book.author}
+          <h2 className="card-title text-2xl">{book.title}</h2>
+          <p className="text-gray-700">
+            <strong>Author:</strong> {book.author}
           </p>
-          <p className="text-sm text-gray-600">
-            <span className="font-medium">Genre:</span> {book.genre}
+          <p className="text-gray-700">
+            <strong>Genre:</strong> {book.genre}
           </p>
-          <p className="text-sm text-gray-600">
-            <span className="font-medium">Location:</span> {book.location}
+          <p className="text-gray-700">
+            <strong>Location:</strong> {book.location}
           </p>
-          <p className="mt-4">{book.description}</p>
+          <p className="mt-4 text-sm">{book.description}</p>
 
-          <div className="mt-4 flex flex-col gap-2">
-            <span className="badge badge-outline w-fit">
-              {book.status === "available"
-                ? "Available"
-                : book.status === "rented"
-                  ? "Rented"
-                  : "Other"}
+          {/* Status */}
+          <div className="mt-4">
+            <span className="badge badge-outline capitalize">
+              {book.status}
             </span>
-
-            {book.owner && (
-              <p className="text-sm text-gray-600">
-                <span className="font-medium">Owner:</span> {book.owner.name} (
-                {book.owner.email})
-              </p>
-            )}
-
-            {isBorrowed && book.borrower && (
-              <p className="text-sm text-gray-600">
-                <span className="font-medium">Borrowed By:</span>{" "}
-                {book.borrower.name} ({book.borrower.email})
-              </p>
-            )}
           </div>
 
+          {/* Owner Info */}
+          {book.ownerId && (
+            <div className="mt-6 border-t pt-4">
+              <p className="mb-2 text-lg font-semibold">Owner Info</p>
+              <div className="flex items-center gap-4">
+                <Image
+                  src={book.ownerId.photoUrl || "/default-avatar.png"}
+                  alt={book.ownerId.fullName}
+                  width={48}
+                  height={48}
+                  className="rounded-full object-cover"
+                />
+                <div>
+                  <p className="font-medium">{book.ownerId.fullName}</p>
+                  <p className="text-sm text-gray-600">
+                    {book.ownerId.emailId}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Action Buttons */}
           <div className="mt-6 flex flex-wrap gap-4">
             {isOwner ? (
               <>
-                <Link href={`/book/${bookId}/edit`} className="btn btn-primary">
-                  Edit Book
+                <Link href="/requests" className="btn btn-info">
+                  Check Requests
                 </Link>
-                <button
-                  onClick={() => setShowModal(true)}
-                  className="btn btn-error"
-                >
-                  Delete
-                </button>
+                <Link href="/library" className="btn btn-accent">
+                  Go to Your Library
+                </Link>
               </>
             ) : (
-              book.status === "available" && (
-                <button className="btn btn-success" onClick={handleBorrow}>
-                  Request to Borrow
-                </button>
-              )
+              <>
+                {book.status === "available" && !hasRequested && (
+                  <>
+                    <button
+                      onClick={() => handleRequest("rent")}
+                      className="btn btn-success"
+                      disabled={isRequesting}
+                    >
+                      Request to Rent
+                    </button>
+                    <button
+                      onClick={() => handleRequest("exchange")}
+                      className="btn btn-warning"
+                      disabled={isRequesting}
+                    >
+                      Request to Exchange
+                    </button>
+                  </>
+                )}
+
+                {book.status !== "available" && (
+                  <p className="text-info text-sm italic">
+                    This book is currently {book.status}.
+                  </p>
+                )}
+
+                {hasRequested && (
+                  <div className="flex flex-col gap-2">
+                    <p className="text-info text-sm italic">
+                      You’ve already requested this book.
+                    </p>
+
+                    {myRequest?.status === "pending" && (
+                      <button
+                        onClick={handleCancelRequest}
+                        className="btn btn-error"
+                        disabled={isRequesting}
+                      >
+                        Cancel Request
+                      </button>
+                    )}
+
+                    {myRequest?.status !== "pending" && (
+                      <p className="text-sm text-gray-600">
+                        Request status: {myRequest?.status}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                <Link href="/library" className="btn btn-accent">
+                  Go to Your Library
+                </Link>
+              </>
             )}
           </div>
         </div>
       </div>
-
-      {/* Modal */}
-      {showModal && (
-        <dialog className="modal modal-open">
-          <div className="modal-box">
-            <h3 className="text-lg font-bold">Confirm Deletion</h3>
-            <p className="py-4">Are you sure you want to delete this book?</p>
-            <div className="modal-action">
-              <button
-                onClick={() => setShowModal(false)}
-                className="btn btn-ghost"
-              >
-                Cancel
-              </button>
-              <button onClick={handleDelete} className="btn btn-error">
-                Confirm
-              </button>
-            </div>
-          </div>
-        </dialog>
-      )}
     </div>
   );
 }
