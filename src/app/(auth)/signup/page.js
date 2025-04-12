@@ -1,46 +1,51 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/lib/api";
 import toast from "react-hot-toast";
 import { useAuth } from "@/context/AuthContext";
 
-export default function SignupPage() {
+export default function Page() {
   const router = useRouter();
 
-  const [name, setName] = useState("");
+  const [fullName, setFullName] = useState("");
   const [emailId, setEmailId] = useState("");
   const [password, setPassword] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [role, setRole] = useState("seeker");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { dispatch } = useAuth();
+  const { dispatch, isAuthenticated, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading && isAuthenticated) {
+      toast.success("Signup successful!");
+      router.push("/feed");
+    }
+  }, [isAuthenticated, loading]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
-
     if (password !== confirmPassword) {
-      setError("Passwords do not match.");
       toast.error("Passwords do not match.");
       return;
     }
-
     setIsSubmitting(true);
-
     try {
-      const res = await api.post("/signup", { name, emailId, password });
-
+      const res = await api.post("/signup", {
+        fullName,
+        emailId,
+        phoneNumber,
+        password,
+        role,
+      });
+      console.log(res);
       // Auto-login after successful signup
-      dispatch({ type: "LOGIN", payload: res.data.userData });
-
-      toast.success("Signup successful!");
-      router.push("/feed");
+      dispatch({ type: "LOGIN", payload: res.data.data });
     } catch (err) {
       console.error(err);
-      setError("Signup failed. Please try again.");
       toast.error("Signup failed.");
     } finally {
       setIsSubmitting(false);
@@ -54,38 +59,50 @@ export default function SignupPage() {
           Create Account
         </h2>
 
-        {error && (
-          <div className="mb-4 rounded-md bg-red-100 px-3 py-2 text-sm text-red-600">
-            {error}
-          </div>
-        )}
-
         <div className="mb-4">
-          <label htmlFor="name" className="mb-1 block text-sm font-medium">
+          <label htmlFor="fullName" className="mb-1 block text-sm font-medium">
             Full Name
           </label>
           <input
-            id="name"
+            id="fullName"
             type="text"
             className="input input-bordered w-full"
             placeholder="John Doe"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
             required
           />
         </div>
 
         <div className="mb-4">
-          <label htmlFor="email" className="mb-1 block text-sm font-medium">
+          <label htmlFor="emailId" className="mb-1 block text-sm font-medium">
             Email
           </label>
           <input
-            id="email"
+            id="emailId"
             type="email"
             className="input input-bordered w-full"
             placeholder="you@example.com"
             value={emailId}
             onChange={(e) => setEmailId(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="mb-4">
+          <label
+            htmlFor="phoneNumber"
+            className="mb-1 block text-sm font-medium"
+          >
+            Phone Number
+          </label>
+          <input
+            id="phoneNumber"
+            type="tel"
+            className="input input-bordered w-full"
+            placeholder="123-456-7890"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
             required
           />
         </div>
@@ -130,6 +147,19 @@ export default function SignupPage() {
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
           />
+        </div>
+
+        <div className="mb-6 flex items-center">
+          <input
+            id="role"
+            type="checkbox"
+            className="mr-2"
+            checked={role === "owner"}
+            onChange={(e) => setRole(e.target.checked ? "owner" : "seeker")}
+          />
+          <label htmlFor="role" className="text-sm font-medium">
+            Register as Books owner
+          </label>
         </div>
 
         <button

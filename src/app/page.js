@@ -1,10 +1,12 @@
 "use client";
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
 
 const Page = () => {
+  const { isAuthenticated } = useAuth();
   return (
     <div>
-      <main className="bg-base-200 flex min-h-screen flex-col items-center justify-center px-4">
+      <main className="bg-base-200 flex min-h-[34rem] flex-col items-center justify-center px-4">
         <div className="max-w-2xl text-center">
           <h1 className="text-primary mb-4 text-5xl font-bold">
             Welcome to ShelfShare
@@ -13,10 +15,16 @@ const Page = () => {
             Discover, lend, and borrow books with your community. ShelfShare
             makes peer-to-peer book exchange easy and fun.
           </p>
-          <div className="flex justify-center gap-4">
-            <Link href="/signup" className="btn btn-primary">
-              Get Started
-            </Link>
+          <div className="flex justify-center">
+            {isAuthenticated ? (
+              <Link href="/feed" className="btn btn-primary">
+                Browse
+              </Link>
+            ) : (
+              <Link href="/signup" className="btn btn-primary">
+                Get Started
+              </Link>
+            )}
           </div>
         </div>
       </main>

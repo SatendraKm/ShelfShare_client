@@ -9,7 +9,7 @@ const Feed = () => {
 
   if (!isAuthenticated) return <div>You are not logged in.</div>;
 
-  return <div>firstName : {user?.firstName}</div>;
+  return <div>firstName : {user?.fullName}</div>;
 };
 
 export default Feed;
