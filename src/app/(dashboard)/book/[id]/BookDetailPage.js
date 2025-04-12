@@ -24,7 +24,6 @@ export default function BookDetailPage({ bookId }) {
       try {
         setLoading(true);
         const res = await api.get(`/book/${bookId}`);
-        console.log(res);
         setBook(res.data.data);
       } catch (error) {
         console.error("Error fetching book:", error);
@@ -48,6 +47,20 @@ export default function BookDetailPage({ bookId }) {
         toast.error("Failed to delete book");
       }
     } catch (err) {
+      toast.error("Something went wrong");
+    }
+  };
+  const handleBorrow = async () => {
+    try {
+      console.log("borrow feature is not implemented yet");
+      // const res = await api.post(`/book/${bookId}/borrow`);
+      // if (res.status === 200) {
+      //   toast.success("Borrow request successful!");
+      //   router.refresh();
+      // } else {
+      //   toast.error(res.data?.message || "Failed to borrow");
+      // }
+    } catch (error) {
       toast.error("Something went wrong");
     }
   };
@@ -113,10 +126,7 @@ export default function BookDetailPage({ bookId }) {
           <div className="mt-6 flex flex-wrap gap-4">
             {isOwner ? (
               <>
-                <Link
-                  href={`/books/${bookId}/edit`}
-                  className="btn btn-primary"
-                >
+                <Link href={`/book/${bookId}/edit`} className="btn btn-primary">
                   Edit Book
                 </Link>
                 <button
@@ -128,7 +138,9 @@ export default function BookDetailPage({ bookId }) {
               </>
             ) : (
               book.status === "available" && (
-                <button className="btn btn-success">Request to Borrow</button>
+                <button className="btn btn-success" onClick={handleBorrow}>
+                  Request to Borrow
+                </button>
               )
             )}
           </div>

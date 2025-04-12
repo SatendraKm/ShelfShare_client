@@ -1,7 +1,9 @@
+"use client";
+import React from "react";
 import BookDetailPage from "./BookDetailPage";
 
-export default async function BookDetail({ params }) {
-  const { id } = await params;
+export default function BookDetail({ params }) {
+  const { id } = React.use(params);
 
   return <BookDetailPage bookId={id} />;
 }

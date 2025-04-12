@@ -119,6 +119,9 @@ const Navbar = () => {
                   <Link href="/profile">Profile</Link>
                 </li>
                 <li>
+                  <Link href="/book/new">Add a book</Link>
+                </li>
+                <li>
                   <button
                     onClick={logout}
                     className="rounded bg-red-500 px-4 py-2 text-white"
