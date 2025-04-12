@@ -29,7 +29,7 @@ export default function Page() {
 
     try {
       const res = await api.post("/login", { emailId, password });
-      dispatch({ type: "LOGIN", payload: res.data.userData });
+      dispatch({ type: "LOGIN", payload: res.data.data });
     } catch (err) {
       console.error(err);
       setError("Invalid email or password.");

@@ -29,7 +29,7 @@ export default function RootLayout({ children }) {
           <div className="flex min-h-screen flex-col">
             <Navbar />
             {children}
-            <Toaster position="top-right" reverseOrder={false} />
+            <Toaster position="top-center" reverseOrder={false} />
           </div>
         </Providers>
       </body>

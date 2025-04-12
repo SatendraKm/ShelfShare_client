@@ -9,8 +9,9 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 
 const Navbar = () => {
-  const { dispatch, isAuthenticated } = useAuth();
+  const { dispatch, isAuthenticated, user } = useAuth();
   const router = useRouter();
+  console.log(user);
 
   const logout = async () => {
     try {
@@ -53,7 +54,7 @@ const Navbar = () => {
                     height={100}
                     className="rounded-full"
                     alt="User avatar"
-                    src="/navphoto.webp"
+                    src={user?.photoUrl || "/navphoto.webp"}
                   />
                 </div>
               </div>

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import api from "@/lib/api";
 import toast from "react-hot-toast";
 import { useAuth } from "@/context/AuthContext";
+import Image from "next/image";
 
 export default function Page() {
   const router = useRouter();
@@ -12,6 +13,8 @@ export default function Page() {
   const [emailId, setEmailId] = useState("");
   const [password, setPassword] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [profileImage, setProfileImage] = useState(null);
+  const [profileImagePreview, setProfileImagePreview] = useState(null);
   const [role, setRole] = useState("seeker");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -32,17 +35,22 @@ export default function Page() {
       toast.error("Passwords do not match.");
       return;
     }
+
+    const formData = new FormData();
+    formData.append("fullName", fullName);
+    formData.append("emailId", emailId);
+    formData.append("phoneNumber", phoneNumber);
+    formData.append("password", password);
+    formData.append("role", role);
+    if (profileImage) {
+      formData.append("profileImage", profileImage);
+    }
+
     setIsSubmitting(true);
     try {
-      const res = await api.post("/signup", {
-        fullName,
-        emailId,
-        phoneNumber,
-        password,
-        role,
+      const res = await api.post("/signup", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
-      console.log(res);
-      // Auto-login after successful signup
       dispatch({ type: "LOGIN", payload: res.data.data });
     } catch (err) {
       console.error(err);
@@ -105,6 +113,48 @@ export default function Page() {
             onChange={(e) => setPhoneNumber(e.target.value)}
             required
           />
+        </div>
+
+        <div className="mb-4">
+          <label
+            htmlFor="profileImage"
+            className="mb-1 block text-sm font-medium"
+          >
+            Profile Image (optional)
+          </label>
+          <input
+            id="profileImage"
+            type="file"
+            accept="image/*"
+            className="file-input file-input-bordered w-full"
+            onChange={(e) => {
+              const file = e.target.files[0];
+              if (!file) return;
+
+              if (file.size > 3 * 1024 * 1024) {
+                toast.error("Image size should not exceed 3MB");
+                e.target.value = null;
+                setProfileImage(null);
+                setProfileImagePreview(null);
+                return;
+              }
+
+              setProfileImage(file);
+              const imageUrl = URL.createObjectURL(file);
+              setProfileImagePreview(imageUrl);
+            }}
+          />
+          {profileImagePreview && (
+            <div className="mt-2 flex justify-center">
+              <Image
+                width={24}
+                height={24}
+                src={profileImagePreview}
+                alt="Preview"
+                className="h-24 w-24 rounded-full border object-cover shadow"
+              />
+            </div>
+          )}
         </div>
 
         <div className="mb-4">
