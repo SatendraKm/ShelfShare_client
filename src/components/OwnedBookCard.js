@@ -17,20 +17,22 @@ export default function OwnedBookCard({ book, onDelete }) {
         </span>
       </p>
 
-      <div className="mt-4 flex space-x-2">
-        <Link
-          href={`book/${book?._id}/edit`}
-          className="flex items-center gap-1 rounded bg-blue-100 px-3 py-1 text-sm text-blue-700 hover:bg-blue-200"
-        >
-          Edit
-        </Link>
-        <button
-          onClick={() => onDelete(book)}
-          className="flex items-center gap-1 rounded bg-red-100 px-3 py-1 text-sm text-red-700 hover:bg-red-200"
-        >
-          Delete
-        </button>
-      </div>
+      {book.status !== "exchanged" && (
+        <div className="mt-4 flex space-x-2">
+          <Link
+            href={`book/${book?._id}/edit`}
+            className="flex items-center gap-1 rounded bg-blue-100 px-3 py-1 text-sm text-blue-700 hover:bg-blue-200"
+          >
+            Edit
+          </Link>
+          <button
+            onClick={() => onDelete(book)}
+            className="flex items-center gap-1 rounded bg-red-100 px-3 py-1 text-sm text-red-700 hover:bg-red-200"
+          >
+            Delete
+          </button>
+        </div>
+      )}
     </div>
   );
 }

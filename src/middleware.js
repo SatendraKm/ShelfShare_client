@@ -29,7 +29,6 @@ export const config = {
     "/dashboard/:path*", // Protect dashboard and its subpaths
     "/login", // Handle login page
     "/signup", // Handle signup page
-    "/", // Handle the root page
     "/books/:path*", // Protect books and its subpaths
   ],
 };
