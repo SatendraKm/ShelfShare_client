@@ -30,17 +30,19 @@ export default function Page() {
     try {
       const res = await api.post("/login", { emailId, password });
       dispatch({ type: "LOGIN", payload: res.data.data });
+      console.log(res);
     } catch (err) {
       console.error(err);
-      setError("Invalid email or password.");
-      toast.error("Login failed. Please try again.");
+      const message = err.response?.data?.message || "Something went wrong!";
+      setError(message);
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-xl">
+    <div className="w-full max-w-sm rounded-xl p-6 shadow-xl">
       <form onSubmit={handleSubmit}>
         <h2 className="mb-6 text-center text-2xl font-semibold">Login</h2>
 

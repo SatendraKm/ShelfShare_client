@@ -61,7 +61,7 @@ export default function Page() {
   };
 
   return (
-    <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-xl">
+    <div className="w-full max-w-sm rounded-xl p-6 shadow-xl">
       <form onSubmit={handleSubmit}>
         <h2 className="mb-6 text-center text-2xl font-semibold">
           Create Account
@@ -125,6 +125,7 @@ export default function Page() {
           <input
             id="profileImage"
             type="file"
+            disabled
             accept="image/*"
             className="file-input file-input-bordered w-full"
             onChange={(e) => {

@@ -132,6 +132,7 @@ export default function CreateBookPage() {
         <div className="mb-4">
           <input
             type="file"
+            disabled
             accept="image/*"
             className="file-input file-input-bordered w-full"
             onChange={handleImageChange}

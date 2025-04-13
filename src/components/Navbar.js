@@ -13,6 +13,9 @@ const Navbar = () => {
   const { dispatch, isAuthenticated, user } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const router = useRouter();
+  console.log(user);
+  const role = user?.role;
+  console.log(role);
 
   const logout = async () => {
     try {
@@ -121,9 +124,11 @@ const Navbar = () => {
                 <li>
                   <Link href="/feed">Feed</Link>
                 </li>
-                <li>
-                  <Link href="/book/new">Add a book</Link>
-                </li>
+                {role === "owner" && (
+                  <li>
+                    <Link href="/book/new">Add a book</Link>
+                  </li>
+                )}
                 <li>
                   <Link href="/library">Library</Link>
                 </li>
