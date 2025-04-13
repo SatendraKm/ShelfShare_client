@@ -4,6 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useState } from "react";
 import api from "@/lib/api";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function EditProfilePage() {
   const { user, setUser } = useAuth();
@@ -13,6 +14,8 @@ export default function EditProfilePage() {
   const [phoneNumber, setPhoneNumber] = useState(user?.phoneNumber || "");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [profileImage, setProfileImage] = useState(null); // State for the profile image
+  const [imagePreview, setImagePreview] = useState(user?.photoUrl || ""); // State for image preview
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -24,10 +27,16 @@ export default function EditProfilePage() {
     setLoading(true);
     setMessage("");
 
+    const formData = new FormData();
+    formData.append("fullName", fullName);
+    formData.append("phoneNumber", phoneNumber);
+    if (profileImage) formData.append("photoUrl", profileImage); // Append the selected image
+
     try {
-      const res = await api.patch("/profile/edit", {
-        fullName,
-        phoneNumber,
+      const res = await api.patch("/profile/edit", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
       setUser(res.data.data);
       setMessage("Profile updated successfully.");
@@ -67,6 +76,19 @@ export default function EditProfilePage() {
     }
   };
 
+  // Handle image file change and show preview
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfileImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result); // Set image preview as base64 data URL
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
     <div className="mx-auto max-w-lg p-4">
       <h1 className="mb-6 text-3xl font-bold">Edit Profile</h1>
@@ -92,6 +114,30 @@ export default function EditProfilePage() {
             className="input input-bordered w-full"
             required
           />
+        </div>
+
+        {/* Profile Image Upload */}
+        <div>
+          <label className="label">Profile Image</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="input input-bordered w-full"
+          />
+          {/* Image Preview */}
+          {imagePreview && (
+            <div className="mt-4">
+              <p className="text-sm text-gray-600">Image Preview:</p>
+              <Image
+                height={32}
+                width={32}
+                src={imagePreview}
+                alt="Image Preview"
+                className="mt-2 h-32 w-32 rounded-lg object-cover"
+              />
+            </div>
+          )}
         </div>
 
         <button
