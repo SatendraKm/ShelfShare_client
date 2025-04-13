@@ -161,6 +161,9 @@ export default function BookDetailPage({ bookId }) {
                 <Link href="/library" className="btn btn-accent">
                   Go to Your Library
                 </Link>
+                <Link href={`/book/${bookId}/edit`} className="btn btn-accent">
+                  Edit Book
+                </Link>
               </>
             ) : (
               <>

@@ -24,6 +24,8 @@ export function middleware(req) {
 
 export const config = {
   matcher: [
+    "/",
+    "/books/:path*",
     "/feed/:path*",
     "/profile/:path*",
     "/dashboard/:path*",
