@@ -30,8 +30,9 @@ export default function EditBookPage() {
       try {
         const res = await api.get(`/book/${id}`);
         const data = res.data.data;
+        console.log(data);
 
-        if (data.ownerId !== user?._id) {
+        if (data.ownerId._id !== user?._id) {
           toast.error("You are not authorized to edit this book.");
           return router.push("/feed");
         }
@@ -109,7 +110,7 @@ export default function EditBookPage() {
   return (
     <div className="mx-auto max-w-2xl p-6">
       <h2 className="mb-4 text-2xl font-bold">
-        Edit- <span className="underline">{book.title}</span>
+        Edit- <span className="underline">{book?.title}</span>
       </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <input

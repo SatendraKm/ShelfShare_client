@@ -24,12 +24,12 @@ export function middleware(req) {
 
 export const config = {
   matcher: [
-    "/",
-    "/books/:path*",
-    "/feed/:path*",
-    "/profile/:path*",
-    "/dashboard/:path*",
-    "/login",
-    "/signup",
+    "/feed/:path*", // Protect feed and its subpaths
+    "/profile/:path*", // Protect profile and its subpaths
+    "/dashboard/:path*", // Protect dashboard and its subpaths
+    "/login", // Handle login page
+    "/signup", // Handle signup page
+    "/", // Handle the root page
+    "/books/:path*", // Protect books and its subpaths
   ],
 };
