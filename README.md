@@ -28,6 +28,13 @@ The frontend of **ShelfShare** is built using **React.js** and **Next.js**. It p
 - **Axios** for HTTP requests.
 - **React Context API** for state management.
 
+## What's not working
+1. issue with the PATCH APIs due to CORS error-
+	1. cannot update password in profile
+	2. cannot update profile data on profile page
+2. Image upload in deployed version of the application on vercel
+Note- rest i have covered all the features including some extra features also like requesting books, dark mode across the application, etc.
+
 ## Frontend Setup
 
 1. Clone the repository:
