@@ -45,7 +45,7 @@ export default function ProfilePage() {
     <div className="mx-auto max-w-2xl p-4">
       <h1 className="mb-6 text-3xl font-bold">My Profile</h1>
 
-      <div className="space-y-4 rounded-lg bg-white p-6 shadow">
+      <div className="bg-base-300 space-y-4 rounded-lg p-6 shadow">
         {/* Profile Photo */}
         <div className="flex items-center gap-4">
           <div className="relative h-20 w-20 overflow-hidden rounded-full border">
@@ -60,8 +60,8 @@ export default function ProfilePage() {
           </div>
           <div>
             <p className="text-xl font-semibold">{user.fullName}</p>
-            <p className="text-gray-600">{user.emailId}</p>
-            <p className="text-gray-600">{user.phoneNumber}</p>
+            <p>{user.emailId}</p>
+            <p>{user.phoneNumber}</p>
             <p className="text-sm text-gray-500 capitalize">
               Role: {user.role}
             </p>
@@ -74,26 +74,26 @@ export default function ProfilePage() {
             {/* Display stats based on role */}
             {user.role === "owner" && (
               <>
-                <div className="rounded bg-gray-100 p-4 text-center">
+                <div className="bg-base-100 rounded p-4 text-center">
                   <p className="text-2xl font-bold">{stats.ownedCount}</p>
-                  <p className="text-sm text-gray-600">Books Listed</p>
+                  <p className="text-sm text-white">Books Listed</p>
                 </div>
-                <div className="rounded bg-gray-100 p-4 text-center">
+                <div className="bg-base-100 rounded p-4 text-center">
                   <p className="text-2xl font-bold">{stats.exchangedCount}</p>
-                  <p className="text-sm text-gray-600">Books Exchanged</p>
+                  <p className="text-sm text-white">Books Exchanged</p>
                 </div>
               </>
             )}
 
             {user.role === "seeker" && (
               <>
-                <div className="rounded bg-gray-100 p-4 text-center">
+                <div className="bg-base-100 rounded p-4 text-center">
                   <p className="text-2xl font-bold">{stats.borrowedCount}</p>
-                  <p className="text-sm text-gray-600">Books Borrowed</p>
+                  <p className="text-sm text-white">Books Borrowed</p>
                 </div>
-                <div className="rounded bg-gray-100 p-4 text-center">
+                <div className="bg-base-100 rounded p-4 text-center">
                   <p className="text-2xl font-bold">{stats.exchangedCount}</p>
-                  <p className="text-sm text-gray-600">Books Exchanged</p>
+                  <p className="text-sm text-white">Books Exchanged</p>
                 </div>
               </>
             )}

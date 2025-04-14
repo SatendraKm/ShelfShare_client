@@ -92,7 +92,7 @@ export default function EditProfilePage() {
   return (
     <div className="mx-auto max-w-lg p-4">
       <h1 className="mb-6 text-3xl font-bold text-red-500 underline">
-        Note- currently disabled due to CORS error for Patch errors
+        Note- currently disabled due to CORS error in Patch API
       </h1>
       <h1 className="mb-6 text-3xl font-bold">Edit Profile</h1>
 

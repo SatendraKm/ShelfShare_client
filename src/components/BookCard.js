@@ -41,6 +41,7 @@ const BookCard = ({ book }) => {
           <p className="line-clamp-3 text-sm">
             {book.description?.trim() || "No description available."}
           </p>
+          <p className="text-sm">{book.genres.join(", ")}</p>
         </div>
       </Link>
     </div>

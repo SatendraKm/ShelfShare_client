@@ -54,8 +54,9 @@ export default function Page() {
       });
       dispatch({ type: "LOGIN", payload: res.data.data });
     } catch (err) {
+      const message = err.response.data.message;
       console.error(err);
-      toast.error("Signup failed.");
+      toast.error(message || "Signup failed.");
     } finally {
       setIsSubmitting(false);
     }
@@ -123,6 +124,9 @@ export default function Page() {
           >
             Profile Image (optional)
           </label>
+          <span className="text-sm text-red-500">
+            Avoid if you are using on versal
+          </span>
           <input
             id="profileImage"
             type="file"

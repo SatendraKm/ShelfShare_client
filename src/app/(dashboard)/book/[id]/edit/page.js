@@ -218,6 +218,9 @@ export default function EditBookPage() {
               className="border-base-300 h-48 w-full rounded-lg border object-cover"
             />
           )}
+          <p className="text-sm text-red-500">
+            Image upload is not working on versal
+          </p>
           <input
             type="file"
             accept="image/*"

@@ -11,7 +11,7 @@ import ExchangedBookCard from "@/components/ExchangedBookCard";
 export default function LibraryPage() {
   const { user } = useAuth();
 
-  const [activeTab, setActiveTab] = useState("owned");
+  const [activeTab, setActiveTab] = useState("rented");
   const [ownedBooks, setOwnedBooks] = useState([]);
   const [rentedBooks, setRentedBooks] = useState([]);
   const [exchangedBooks, setExchangedBooks] = useState([]);
@@ -160,22 +160,21 @@ export default function LibraryPage() {
   };
 
   const tabs = ["rented", "exchanged"];
-  if (user?.role === "owner") tabs.push("owned");
+  if (user?.role === "owner") tabs.unshift("owned");
 
   return (
     <div className="mx-auto max-w-5xl p-4">
       <h1 className="mb-6 text-3xl font-bold">My Library</h1>
 
       {/* Tabs */}
-      <div className="mb-6 flex gap-4">
+      <div role="tablist" className="tabs mb-6 gap-2">
         {tabs.map((tab) => (
           <button
             key={tab}
+            role="tab"
             onClick={() => setActiveTab(tab)}
-            className={`rounded px-4 py-2 capitalize transition ${
-              activeTab === tab
-                ? "bg-primary text-white"
-                : "bg-gray-100 hover:bg-gray-200"
+            className={`tab bg-base-200 tab-bordered capitalize ${
+              activeTab === tab ? "tab-active" : ""
             }`}
           >
             {tab}

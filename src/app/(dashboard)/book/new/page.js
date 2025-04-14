@@ -31,7 +31,7 @@ export default function CreateBookPage() {
     genres: [],
     location: "",
     description: "",
-    bookImage: "",
+    bookImage: "" || "/bookcover.png",
   });
 
   const [imagePreview, setImagePreview] = useState(null);
@@ -208,6 +208,9 @@ export default function CreateBookPage() {
             <label className="mb-2 block font-semibold">
               Upload Cover Image
             </label>
+            <p className="text-sm text-red-500">
+              Image upload is not working on versal
+            </p>
             <input
               type="file"
               accept="image/*"

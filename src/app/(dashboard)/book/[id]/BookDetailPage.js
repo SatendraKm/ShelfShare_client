@@ -138,12 +138,29 @@ export default function BookDetailPage({ bookId }) {
             </div>
 
             {/* Owner Info */}
+            {book.status !== "available" && (
+              <div className="border-base-300 mt-4 border-t pt-4 dark:border-gray-700">
+                <p className="mb-2 text-base font-semibold">
+                  {book.status} by-
+                </p>
+                <div className="flex items-center gap-4">
+                  <div>
+                    <p className="font-medium">{book.borrowerId.fullName}</p>
+                    <p className="text-sm font-normal">
+                      {book.borrowerId.emailId}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Owner Info */}
             {book.ownerId && (
               <div className="border-base-300 mt-4 border-t pt-4 dark:border-gray-700">
                 <p className="mb-2 text-base font-semibold">Owner</p>
                 <div className="flex items-center gap-4">
                   <Image
-                    src={book.ownerId.photoUrl || "/default-avatar.png"}
+                    src={book ? book.ownerId.photoUrl : "/navphoto.webp"}
                     alt={book.ownerId.fullName}
                     width={48}
                     height={48}
