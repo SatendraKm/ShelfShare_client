@@ -5,6 +5,8 @@ import toast from "react-hot-toast";
 import BookCard from "@/components/BookCard";
 import { useDebounce } from "use-debounce";
 import { FiSearch, FiRefreshCw } from "react-icons/fi";
+import { MdLocationPin } from "react-icons/md";
+import { RiEmotionHappyLine } from "react-icons/ri";
 
 const genres = [
   "Fiction",
@@ -86,21 +88,36 @@ const FeedPage = () => {
 
   return (
     <div className="dark:bg-base-100 min-h-screen">
-      {/* Sticky Title + Filters */}
       <div className="bg-base-100 border-b-base-300 sticky top-16 z-30 border-b px-4 py-2 shadow-sm">
         <div className="mx-auto flex max-w-7xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           {/* Title + Count */}
-          <div>
-            <h1 className="text-primary text-xl font-bold sm:text-2xl">
-              📚 Book Feed
-            </h1>
-            <p className="text-base-content text-xs">
-              {totalBooks} book{totalBooks !== 1 && "s"} found
-            </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-primary text-xl font-bold sm:text-2xl">
+                📚 Book Feed
+              </h1>
+              <p className="text-base-content text-xs">
+                {totalBooks} book{totalBooks !== 1 && "s"} found
+              </p>
+            </div>
+
+            {/* Toggle button for mobile */}
+            <div className="sm:hidden">
+              <button
+                className="btn btn-sm btn-outline"
+                onClick={() =>
+                  document
+                    .getElementById("filter-collapse")
+                    .classList.toggle("collapse-open")
+                }
+              >
+                Filters
+              </button>
+            </div>
           </div>
 
           {/* Filters */}
-          <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+          <div className="hidden flex-wrap items-center gap-2 sm:flex sm:justify-end">
             {/* Search by Title */}
             <div className="flex items-center gap-1">
               <FiSearch className="text-base-content xs:inline hidden text-lg" />
@@ -114,8 +131,63 @@ const FeedPage = () => {
             </div>
 
             {/* Genre Dropdown */}
+            <div className="flex items-center gap-1">
+              <RiEmotionHappyLine className="text-base-content xs:inline hidden text-lg" />
+              <select
+                className="select select-bordered select-sm xs:w-32 w-28 sm:w-36"
+                value={selectedGenre}
+                onChange={handleGenreChange}
+              >
+                <option value="">Genres</option>
+                {genres.map((genre) => (
+                  <option key={genre} value={genre}>
+                    {genre}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Location Search */}
+            <div className="flex items-center gap-1">
+              <MdLocationPin className="text-base-content xs:inline hidden text-lg" />
+              <input
+                type="text"
+                placeholder="Location"
+                className="input input-bordered input-sm xs:w-28 w-24 sm:w-36"
+                value={selectedLocation}
+                onChange={handleLocationChange}
+              />
+            </div>
+
+            {/* Reset Button */}
+            <button className="btn btn-sm btn-outline" onClick={resetFilters}>
+              <FiRefreshCw className="xs:inline mr-1 hidden" /> Reset
+            </button>
+          </div>
+        </div>
+
+        {/* Collapsible Filters for Mobile */}
+        <div
+          id="filter-collapse"
+          className="collapse-arrow border-base-300 collapse mt-2 sm:hidden"
+        >
+          <input type="checkbox" className="hidden" />
+          <div className="collapse-content flex flex-col gap-3 py-2">
+            {/* Search by Title */}
+            <div className="flex items-center gap-1">
+              <FiSearch className="text-base-content text-lg" />
+              <input
+                type="text"
+                placeholder="Title"
+                className="input input-bordered input-sm w-full"
+                value={searchTerm}
+                onChange={handleSearchChange}
+              />
+            </div>
+
+            {/* Genre Dropdown */}
             <select
-              className="select select-bordered select-sm xs:w-32 w-28 sm:w-36"
+              className="select select-bordered select-sm w-full"
               value={selectedGenre}
               onChange={handleGenreChange}
             >
@@ -129,11 +201,11 @@ const FeedPage = () => {
 
             {/* Location Search */}
             <div className="flex items-center gap-1">
-              <FiSearch className="text-base-content xs:inline hidden text-lg" />
+              <MdLocationPin className="text-base-content text-lg" />
               <input
                 type="text"
                 placeholder="Location"
-                className="input input-bordered input-sm xs:w-28 w-24 sm:w-36"
+                className="input input-bordered input-sm w-full"
                 value={selectedLocation}
                 onChange={handleLocationChange}
               />
@@ -141,7 +213,7 @@ const FeedPage = () => {
 
             {/* Reset Button */}
             <button className="btn btn-sm btn-outline" onClick={resetFilters}>
-              <FiRefreshCw className="xs:inline mr-1 hidden" /> Reset
+              <FiRefreshCw className="mr-1" /> Reset
             </button>
           </div>
         </div>
