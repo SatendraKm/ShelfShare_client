@@ -6,6 +6,20 @@ import BookCard from "@/components/BookCard";
 import { useDebounce } from "use-debounce";
 import { FiSearch, FiRefreshCw } from "react-icons/fi";
 
+const genres = [
+  "Fiction",
+  "Non-Fiction",
+  "Fantasy",
+  "Romance",
+  "Mystery",
+  "Thriller",
+  "Science Fiction",
+  "Biography",
+  "Historical",
+  "Self-Help",
+  "Horror",
+];
+
 const FeedPage = () => {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -71,54 +85,70 @@ const FeedPage = () => {
   };
 
   return (
-    <div className="dark:bg-base-100 min-h-screen px-4 py-8">
-      <div className="mx-auto max-w-7xl">
-        <h1 className="text-primary mb-2 text-4xl font-bold">📚 Book Feed</h1>
-        <p className="text-base-content mb-6 text-sm">
-          {totalBooks} book{totalBooks !== 1 && "s"} found
-        </p>
-
-        {/* Filters */}
-        <div className="bg-base-100 mb-8 flex flex-col items-stretch gap-4 rounded-xl p-4 shadow md:flex-row md:items-end">
-          <div className="flex flex-1 items-center gap-2">
-            <FiSearch className="text-base-content text-xl" />
-            <input
-              type="text"
-              placeholder="Search by title"
-              className="input input-bordered w-full"
-              value={searchTerm}
-              onChange={handleSearchChange}
-            />
+    <div className="dark:bg-base-100 min-h-screen">
+      {/* Sticky Title + Filters */}
+      <div className="bg-base-100 border-b-base-300 sticky top-16 z-30 border-b px-4 py-2 shadow-sm">
+        <div className="mx-auto flex max-w-7xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          {/* Title + Count */}
+          <div>
+            <h1 className="text-primary text-xl font-bold sm:text-2xl">
+              📚 Book Feed
+            </h1>
+            <p className="text-base-content text-xs">
+              {totalBooks} book{totalBooks !== 1 && "s"} found
+            </p>
           </div>
 
-          <select
-            className="select select-bordered w-full md:w-48"
-            value={selectedGenre}
-            onChange={handleGenreChange}
-          >
-            <option value="">All Genres</option>
-            <option value="Self-help">Self-help</option>
-            <option value="Fiction">Fiction</option>
-            <option value="Non-fiction">Non-fiction</option>
-            <option value="Biography">Biography</option>
-          </select>
+          {/* Filters */}
+          <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+            {/* Search by Title */}
+            <div className="flex items-center gap-1">
+              <FiSearch className="text-base-content xs:inline hidden text-lg" />
+              <input
+                type="text"
+                placeholder="Title"
+                className="input input-bordered input-sm xs:w-32 w-28 sm:w-40"
+                value={searchTerm}
+                onChange={handleSearchChange}
+              />
+            </div>
 
-          <select
-            className="select select-bordered w-full md:w-48"
-            value={selectedLocation}
-            onChange={handleLocationChange}
-          >
-            <option value="">All Locations</option>
-            <option value="India">India</option>
-            <option value="USA">USA</option>
-            <option value="UK">UK</option>
-          </select>
+            {/* Genre Dropdown */}
+            <select
+              className="select select-bordered select-sm xs:w-32 w-28 sm:w-36"
+              value={selectedGenre}
+              onChange={handleGenreChange}
+            >
+              <option value="">Genres</option>
+              {genres.map((genre) => (
+                <option key={genre} value={genre}>
+                  {genre}
+                </option>
+              ))}
+            </select>
 
-          <button className="btn btn-outline md:btn-sm" onClick={resetFilters}>
-            <FiRefreshCw className="mr-2" /> Reset
-          </button>
+            {/* Location Search */}
+            <div className="flex items-center gap-1">
+              <FiSearch className="text-base-content xs:inline hidden text-lg" />
+              <input
+                type="text"
+                placeholder="Location"
+                className="input input-bordered input-sm xs:w-28 w-24 sm:w-36"
+                value={selectedLocation}
+                onChange={handleLocationChange}
+              />
+            </div>
+
+            {/* Reset Button */}
+            <button className="btn btn-sm btn-outline" onClick={resetFilters}>
+              <FiRefreshCw className="xs:inline mr-1 hidden" /> Reset
+            </button>
+          </div>
         </div>
+      </div>
 
+      {/* Main Content */}
+      <div className="mx-auto max-w-7xl px-4 py-8">
         {/* Loading State */}
         {loading ? (
           <div className="flex min-h-[40vh] items-center justify-center">
@@ -136,19 +166,19 @@ const FeedPage = () => {
             </div>
 
             {/* Pagination */}
-            <div className="mt-10 flex items-center justify-center gap-4">
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
               <button
-                className="btn btn-outline"
+                className="btn btn-outline btn-sm"
                 onClick={prevPage}
                 disabled={page === 1}
               >
                 Previous
               </button>
-              <span className="text-base-content">
+              <span className="text-base-content text-sm">
                 Page <strong>{page}</strong> of {Math.ceil(totalBooks / limit)}
               </span>
               <button
-                className="btn btn-outline"
+                className="btn btn-outline btn-sm"
                 onClick={nextPage}
                 disabled={page * limit >= totalBooks}
               >

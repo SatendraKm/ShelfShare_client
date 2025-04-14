@@ -31,12 +31,10 @@ export default function CreateBookPage() {
     genres: [],
     location: "",
     description: "",
-    imageUrl: "",
+    bookImage: "",
   });
 
-  const [genreInput, setGenreInput] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
-  const [imageFile, setImageFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -57,21 +55,20 @@ export default function CreateBookPage() {
     }));
   };
 
-  const handleGenreAdd = () => {
-    const trimmed = genreInput.trim();
-    if (trimmed && !formData.genres.includes(trimmed)) {
-      setFormData((prev) => ({
-        ...prev,
-        genres: [...prev.genres, trimmed],
-      }));
-      setGenreInput("");
-    }
-  };
-
-  const handleGenreRemove = (tag) => {
+  const handleGenresChange = (e) => {
+    const selected = Array.from(e.target.selectedOptions).map(
+      (option) => option.value,
+    );
     setFormData((prev) => ({
       ...prev,
-      genres: prev.genres.filter((g) => g !== tag),
+      genres: selected,
+    }));
+  };
+
+  const handleGenreRemove = (genre) => {
+    setFormData((prev) => ({
+      ...prev,
+      genres: prev.genres.filter((g) => g !== genre),
     }));
   };
 
@@ -79,7 +76,10 @@ export default function CreateBookPage() {
     const file = e.target.files[0];
     if (file) {
       setImagePreview(URL.createObjectURL(file));
-      setImageFile(file);
+      setFormData((prev) => ({
+        ...prev,
+        bookImage: file,
+      }));
     }
   };
 
@@ -92,10 +92,11 @@ export default function CreateBookPage() {
     bookData.append("author", formData.author);
     bookData.append("location", formData.location);
     bookData.append("description", formData.description);
-    formData.genres.forEach((g) => bookData.append("genres", g));
-    if (imageFile) {
-      bookData.append("imageUrl", imageFile);
+    formData.genres.forEach((genre) => bookData.append("genres", genre)); // backend expects `genres`
+    if (formData.bookImage) {
+      bookData.append("bookImage", formData.bookImage);
     }
+    console.log(bookData);
 
     try {
       const res = await api.post("/book/new", bookData, {
@@ -103,6 +104,7 @@ export default function CreateBookPage() {
           "Content-Type": "multipart/form-data",
         },
       });
+      console.log(res);
 
       if (res.status === 201) {
         toast.success("Book created successfully!");
@@ -121,9 +123,7 @@ export default function CreateBookPage() {
     <div className="bg-base-100 text-base-content min-h-screen px-4 py-12 sm:px-6 lg:px-8">
       <div className="bg-base-200 mx-auto w-full max-w-2xl rounded-2xl p-8 shadow-xl">
         <div className="mb-6 text-center">
-          <h1 className="text-primary text-3xl font-bold">
-            \ud83d\udcda Add a New Book
-          </h1>
+          <h1 className="text-primary text-3xl font-bold">📚 Add a New Book</h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Fill in the details and upload a cover image.
           </p>
@@ -154,42 +154,33 @@ export default function CreateBookPage() {
           {/* Genre Picker */}
           <div>
             <label className="mb-1 block font-semibold">Genres</label>
-            <div className="mb-2 flex flex-wrap gap-2">
-              {formData.genres.map((tag) => (
+            <select
+              multiple
+              className="select select-bordered h-40 w-full"
+              value={formData.genres}
+              onChange={handleGenresChange}
+            >
+              {GENRE_SUGGESTIONS.map((genre) => (
+                <option key={genre} value={genre}>
+                  {genre}
+                </option>
+              ))}
+            </select>
+            <p className="mt-1 text-sm text-gray-400">
+              Hold Ctrl (Windows) or Command (Mac) to select multiple.
+            </p>
+            {/* Selected genres badges */}
+            <div className="mt-3 flex flex-wrap gap-2">
+              {formData.genres.map((genre) => (
                 <div
-                  key={tag}
+                  key={genre}
                   className="badge badge-neutral cursor-pointer gap-1 px-3 py-1"
-                  onClick={() => handleGenreRemove(tag)}
+                  onClick={() => handleGenreRemove(genre)}
                   title="Click to remove"
                 >
-                  {tag} \u2715
+                  {genre} ✕
                 </div>
               ))}
-            </div>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                className="input input-bordered w-full"
-                placeholder="Add a genre..."
-                value={genreInput}
-                onChange={(e) => setGenreInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    handleGenreAdd();
-                  }
-                }}
-              />
-              <button
-                type="button"
-                className="btn btn-sm btn-outline"
-                onClick={handleGenreAdd}
-              >
-                Add
-              </button>
-            </div>
-            <div className="mt-1 text-sm text-gray-400">
-              Suggestions: {GENRE_SUGGESTIONS.join(", ")}
             </div>
           </div>
 

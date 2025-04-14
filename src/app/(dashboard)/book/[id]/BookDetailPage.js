@@ -108,7 +108,7 @@ export default function BookDetailPage({ bookId }) {
               src={book.imageUrl || "/default-book.jpg"}
               alt={book.title}
               fill
-              className="rounded-t-lg object-cover lg:rounded-l-lg lg:rounded-tr-none"
+              className="rounded-t-lg object-contain lg:rounded-l-lg lg:rounded-tr-none"
             />
           </div>
 
