@@ -49,7 +49,7 @@ cd ShelfShare-client
 
 3. set the .env file at the root directory
 ```bash
-   NEXT_PUBLIC_API_BASE_URL=http://localhost:5000
+NEXT_PUBLIC_API_BASE_URL=http://localhost:5000
 ``` 
 3. Install dependencies:
 ```bash
@@ -83,6 +83,7 @@ Edit or delete the book if they are the owner.
 
 ### Library
 The Library Page shows all books that the logged-in user has either borrowed or exchanged. It is a protected route and can only be accessed by authenticated users.
+It also allows users to manage their listed books and view the status of borrowed books.
 
 ### Profile
 The Profile Page displays the user's personal information, including their name, email, and phone number. It also allows users to manage their listed books and view the status of borrowed books.
