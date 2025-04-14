@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
@@ -12,6 +12,7 @@ import toast from "react-hot-toast";
 const Navbar = () => {
   const { dispatch, isAuthenticated, user } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const [loggingOut, setLoggingOut] = useState(false);
   const router = useRouter();
   console.log(user);
   const role = user?.role;
@@ -19,26 +20,28 @@ const Navbar = () => {
 
   const logout = async () => {
     try {
+      setLoggingOut(true);
       await api.post("/logout");
       Cookies.remove("token");
       dispatch({ type: "LOGOUT" });
       router.push("/");
+      toast.success("Logout successful!");
     } catch (error) {
       console.error("Logout failed:", error);
       toast.error("Logout failed. Please try again.");
     } finally {
-      toast.success("Logout successful!");
+      setLoggingOut(false);
     }
   };
 
   return (
-    <div className="navbar bg-base-100 shadow-sm">
+    <div className="navbar bg-base-100 sticky top-0 z-50 shadow-sm">
       <div className="flex-1">
         <Link href="/" className="btn btn-ghost text-xl">
           ShelfShare
         </Link>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         {/* When NOT authenticated: show dark mode toggle label */}
         {!isAuthenticated && (
           <label className="flex cursor-pointer gap-2">
@@ -104,12 +107,12 @@ const Navbar = () => {
               </div>
               <ul
                 tabIndex={0}
-                className="menu menu-sm dropdown-content bg-base-100 rounded-box z-10 mt-3 w-52 p-2 shadow"
+                className="menu menu-sm dropdown-content bg-base-100 rounded-box animate-fadeIn z-10 mt-3 w-52 p-2 shadow"
               >
                 <li>
                   <button
                     onClick={toggleTheme}
-                    className={`btn btn-sm theme-controller ${
+                    className={`btn btn-sm theme-controller my-1 p-1 ${
                       theme === "light" ? "btn-outline" : "btn"
                     }`}
                   >
@@ -118,29 +121,43 @@ const Navbar = () => {
                       : "Change to Light Mode"}
                   </button>
                 </li>
-                <li>
-                  <Link href="/profile">Profile</Link>
-                </li>
-                <li>
-                  <Link href="/feed">Feed</Link>
-                </li>
                 {role === "owner" && (
                   <li>
-                    <Link href="/book/new">Add a book</Link>
+                    <Link href="/book/new" className="my-1 p-1">
+                      Add a book
+                    </Link>
                   </li>
                 )}
                 <li>
-                  <Link href="/library">Library</Link>
+                  <Link href="/feed" className="my-1 p-1">
+                    Feed
+                  </Link>
                 </li>
                 <li>
-                  <Link href="/requests">Requests</Link>
+                  <Link href="/profile" className="my-1 p-1">
+                    Profile
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/library" className="my-1 p-1">
+                    Library
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/requests" className="my-1 p-1">
+                    Pending Requests
+                  </Link>
                 </li>
                 <li>
                   <button
                     onClick={logout}
-                    className="rounded bg-red-500 px-4 py-2 text-white"
+                    disabled={loggingOut}
+                    className={`btn btn-sm ${loggingOut ? "btn-disabled" : "bg-red-500 text-white"} flex items-center gap-2`}
                   >
-                    Logout
+                    {loggingOut && (
+                      <span className="loading loading-spinner loading-sm"></span>
+                    )}
+                    {loggingOut ? "Logging out" : "Logout"}
                   </button>
                 </li>
                 {/* Theme toggle for logged-in users inside dropdown */}

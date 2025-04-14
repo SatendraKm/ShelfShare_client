@@ -7,6 +7,20 @@ import api from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
 
+const genres_SUGGESTIONS = [
+  "Fiction",
+  "Non-Fiction",
+  "Fantasy",
+  "Romance",
+  "Mystery",
+  "Thriller",
+  "Science Fiction",
+  "Biography",
+  "Historical",
+  "Self-Help",
+  "Horror",
+];
+
 export default function EditBookPage() {
   const { id } = useParams();
   const router = useRouter();
@@ -14,15 +28,16 @@ export default function EditBookPage() {
 
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [imagePreview, setImagePreview] = useState(null); // for preview
-  const [imageFile, setImageFile] = useState(null); // actual file
+  const [imagePreview, setImagePreview] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
+
   const [formData, setFormData] = useState({
     title: "",
     author: "",
-    genre: "",
+    genres: [],
     location: "",
     description: "",
-    imageUrl: "", // will be preserved if no new file is chosen
+    imageUrl: "",
   });
 
   useEffect(() => {
@@ -30,7 +45,6 @@ export default function EditBookPage() {
       try {
         const res = await api.get(`/book/${id}`);
         const data = res.data.data;
-        console.log(data);
 
         if (data.ownerId._id !== user?._id) {
           toast.error("You are not authorized to edit this book.");
@@ -41,7 +55,7 @@ export default function EditBookPage() {
         setFormData({
           title: data.title,
           author: data.author,
-          genre: data.genre,
+          genres: Array.isArray(data.genres) ? data.genres : [data.genres],
           location: data.location,
           description: data.description,
           imageUrl: data.imageUrl || "",
@@ -79,14 +93,14 @@ export default function EditBookPage() {
     e.preventDefault();
     const body = new FormData();
 
-    // Append text fields
-    Object.keys(formData).forEach((key) => {
-      body.append(key, formData[key]);
-    });
+    body.append("title", formData.title);
+    body.append("author", formData.author);
+    body.append("location", formData.location);
+    body.append("description", formData.description);
+    formData.genres.forEach((g) => body.append("genre", g)); // append as "genre" (backend normalizes this)
 
-    // Append image file only if changed
     if (imageFile) {
-      body.set("imageUrl", imageFile);
+      body.append("imageUrl", imageFile);
     }
 
     try {
@@ -105,41 +119,72 @@ export default function EditBookPage() {
     }
   };
 
-  if (loading) return <div className="p-6">Loading...</div>;
+  if (loading) return <div className="p-6 text-center">Loading...</div>;
 
   return (
-    <div className="mx-auto max-w-2xl p-6">
-      <h2 className="mb-4 text-2xl font-bold">
-        Edit- <span className="underline">{book?.title}</span>
-      </h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          name="title"
-          placeholder="Title"
-          className="input input-bordered w-full"
-          value={formData.title}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="text"
-          name="author"
-          placeholder="Author"
-          className="input input-bordered w-full"
-          value={formData.author}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="text"
-          name="genre"
-          placeholder="Genre"
-          className="input input-bordered w-full"
-          value={formData.genre}
-          onChange={handleChange}
-          required
-        />
+    <div className="mx-auto max-w-3xl p-6">
+      <div className="mb-6">
+        <h2 className="text-primary text-3xl font-bold">
+          Edit: <span className="underline">{book?.title}</span>
+        </h2>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          Make changes and click &quot;Save Changes&quot; to update.
+        </p>
+      </div>
+
+      <form
+        onSubmit={handleSubmit}
+        className="bg-base-100 border-base-300 space-y-6 rounded-xl border p-6 shadow-lg"
+      >
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <input
+            type="text"
+            name="title"
+            placeholder="Title"
+            className="input input-bordered w-full"
+            value={formData.title}
+            onChange={handleChange}
+            required
+          />
+          <input
+            type="text"
+            name="author"
+            placeholder="Author"
+            className="input input-bordered w-full"
+            value={formData.author}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        {/* Genre picker */}
+        <div>
+          <label className="mb-1 block font-semibold">Genres</label>
+          <select
+            multiple
+            className="select select-bordered h-40 w-full"
+            value={formData.genres}
+            onChange={(e) => {
+              const selected = Array.from(e.target.selectedOptions).map(
+                (option) => option.value,
+              );
+              setFormData((prev) => ({
+                ...prev,
+                genres: selected,
+              }));
+            }}
+          >
+            {genres_SUGGESTIONS.map((genre) => (
+              <option key={genre} value={genre}>
+                {genre}
+              </option>
+            ))}
+          </select>
+          <p className="mt-1 text-sm text-gray-400">
+            Hold Ctrl (Windows) or Command (Mac) to select multiple.
+          </p>
+        </div>
+
         <input
           type="text"
           name="location"
@@ -149,25 +194,28 @@ export default function EditBookPage() {
           onChange={handleChange}
           required
         />
+
         <textarea
           name="description"
           placeholder="Description"
-          className="textarea textarea-bordered w-full"
+          className="textarea textarea-bordered h-32 w-full"
           value={formData.description}
           onChange={handleChange}
           required
-        ></textarea>
+        />
 
-        {/* Image Upload */}
+        {/* Image section */}
         <div className="space-y-2">
-          <label className="block font-semibold">Book Image</label>
+          <label className="text-base-content block font-semibold">
+            Book Image
+          </label>
           {imagePreview && (
             <Image
-              width={100}
-              height={100}
+              width={200}
+              height={200}
               src={imagePreview}
               alt="Preview"
-              className="h-40 w-full rounded-lg border object-cover"
+              className="border-base-300 h-48 w-full rounded-lg border object-cover"
             />
           )}
           <input
@@ -178,16 +226,16 @@ export default function EditBookPage() {
           />
         </div>
 
-        <div className="mt-6 flex justify-between">
-          <button type="submit" className="btn btn-primary">
-            Save Changes
-          </button>
+        <div className="mt-6 flex justify-end gap-4">
           <button
             type="button"
-            className="btn btn-ghost"
             onClick={() => router.back()}
+            className="btn btn-outline"
           >
             Cancel
+          </button>
+          <button type="submit" className="btn btn-primary">
+            Save Changes
           </button>
         </div>
       </form>

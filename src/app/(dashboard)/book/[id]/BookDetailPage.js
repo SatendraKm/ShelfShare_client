@@ -17,33 +17,31 @@ export default function BookDetailPage({ bookId }) {
   const [isRequesting, setIsRequesting] = useState(false);
   const [myRequest, setMyRequest] = useState(null);
 
+  const fetchBook = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get(`/book/${bookId}`);
+      setBook(res.data.data);
+
+      const myPendingRequest = res.data.data.requests.find(
+        (req) => req.requesterId._id === user._id && req.status === "pending",
+      );
+      setMyRequest(myPendingRequest || null);
+    } catch (err) {
+      toast.error("Failed to load book.");
+      router.push("/feed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!user) return;
-
-    const fetchBook = async () => {
-      try {
-        setLoading(true);
-        const res = await api.get(`/book/${bookId}`);
-        setBook(res.data.data);
-
-        const myPendingRequest = res.data.data.requests.find(
-          (req) => req.requesterId._id === user._id && req.status === "pending",
-        );
-        setMyRequest(myPendingRequest || null);
-      } catch (err) {
-        toast.error("Failed to load book.");
-        router.push("/feed");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchBook();
   }, [bookId, user]);
 
   const isOwner = user?._id === book?.ownerId?._id;
 
-  // check if logged-in user has already requested this book
   const hasRequested = book?.requests?.some(
     (req) => req.requesterId?._id === user?._id,
   );
@@ -51,14 +49,11 @@ export default function BookDetailPage({ bookId }) {
   const handleRequest = async (type) => {
     try {
       setIsRequesting(true);
-      const res = await api.post(`/request`, {
-        bookId,
-        type,
-      });
+      const res = await api.post(`/request`, { bookId, type });
 
       if (res.status === 201) {
         toast.success(`${type === "rent" ? "Rent" : "Exchange"} request sent!`);
-        router.refresh(); // reload the data
+        await fetchBook();
       } else {
         toast.error(`Failed to request ${type}.`);
       }
@@ -66,6 +61,7 @@ export default function BookDetailPage({ bookId }) {
       toast.error(error?.response?.data?.message || "Error sending request.");
     } finally {
       setIsRequesting(false);
+      router.refresh();
     }
   };
 
@@ -73,159 +69,177 @@ export default function BookDetailPage({ bookId }) {
     if (!myRequest) return;
     try {
       setIsRequesting(true);
-      const res = await api.put(`/request/${myRequest._id}/cancel`);
+      await api.put(`/request/${myRequest._id}/cancel`);
       toast.success("Request cancelled successfully.");
-      router.refresh();
+      await fetchBook();
     } catch (error) {
       toast.error(
         error?.response?.data?.message || "Failed to cancel request.",
       );
     } finally {
       setIsRequesting(false);
+      router.refresh();
     }
   };
 
-  if (loading || !book) return <div className="p-6">Loading...</div>;
+  if (loading || !book) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <span className="loading loading-spinner loading-lg"></span>
+      </div>
+    );
+  }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Back button */}
-      <div className="mb-4">
-        <Link href="/feed" className="btn btn-ghost">
-          ← Back to Feed
+    <div className="text-base-content container mx-auto max-w-7xl px-4 py-8">
+      {/* Back to Feed */}
+      <div className="mb-6">
+        <Link href="/feed" className="btn btn-md btn-outline text-lg">
+          Back to Feed
         </Link>
       </div>
 
-      {/* Book Card */}
+      {/* Book Detail Card */}
       <div className="card bg-base-100 shadow-xl">
-        {/* Book Image */}
-        <figure className="relative h-64 w-full">
-          <Image
-            src={book.imageUrl || "/default-book.jpg"}
-            alt={book.title}
-            fill
-            className="rounded-t object-cover"
-          />
-        </figure>
-
-        {/* Book Details */}
-        <div className="card-body">
-          <h2 className="card-title text-2xl">{book.title}</h2>
-          <p className="text-gray-700">
-            <strong>Author:</strong> {book.author}
-          </p>
-          <p className="text-gray-700">
-            <strong>Genre:</strong> {book.genre}
-          </p>
-          <p className="text-gray-700">
-            <strong>Location:</strong> {book.location}
-          </p>
-          <p className="mt-4 text-sm">{book.description}</p>
-
-          {/* Status */}
-          <div className="mt-4">
-            <span className="badge badge-outline capitalize">
-              {book.status}
-            </span>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          {/* Left: Book Image */}
+          <div className="relative h-80 w-full lg:h-full">
+            <Image
+              src={book.imageUrl || "/default-book.jpg"}
+              alt={book.title}
+              fill
+              className="rounded-t-lg object-cover lg:rounded-l-lg lg:rounded-tr-none"
+            />
           </div>
 
-          {/* Owner Info */}
-          {book.ownerId && (
-            <div className="mt-6 border-t pt-4">
-              <p className="mb-2 text-lg font-semibold">Owner Info</p>
-              <div className="flex items-center gap-4">
-                <Image
-                  src={book.ownerId.photoUrl || "/default-avatar.png"}
-                  alt={book.ownerId.fullName}
-                  width={48}
-                  height={48}
-                  className="rounded-full object-cover"
-                />
-                <div>
-                  <p className="font-medium">{book.ownerId.fullName}</p>
-                  <p className="text-sm text-gray-600">
-                    {book.ownerId.emailId}
-                  </p>
+          {/* Right: Book Info */}
+          <div className="card-body flex flex-col gap-4 p-6">
+            <div>
+              <h2 className="text-2xl font-bold">{book.title}</h2>
+              <p className="mt-1 text-base">{book.description}</p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
+              <p>
+                <strong>Author:</strong> {book.author}
+              </p>
+              <p>
+                <strong>Genre:</strong> {book.genre}
+              </p>
+              <p>
+                <strong>Location:</strong> {book.location}
+              </p>
+              <p>
+                <strong>Status:</strong>{" "}
+                <span className="badge badge-outline capitalize">
+                  {book.status}
+                </span>
+              </p>
+            </div>
+
+            {/* Owner Info */}
+            {book.ownerId && (
+              <div className="border-base-300 mt-4 border-t pt-4 dark:border-gray-700">
+                <p className="mb-2 text-base font-semibold">Owner</p>
+                <div className="flex items-center gap-4">
+                  <Image
+                    src={book.ownerId.photoUrl || "/default-avatar.png"}
+                    alt={book.ownerId.fullName}
+                    width={48}
+                    height={48}
+                    className="rounded-full object-cover"
+                  />
+                  <div>
+                    <p className="font-medium">{book.ownerId.fullName}</p>
+                    <p className="text-sm font-normal">
+                      {book.ownerId.emailId}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Action Buttons */}
-          <div className="mt-6 flex flex-wrap gap-4">
-            {isOwner ? (
-              <>
-                <Link href="/requests" className="btn btn-info">
-                  Check Requests
-                </Link>
-                <Link href="/library" className="btn btn-accent">
-                  Go to Your Library
-                </Link>
-                {book.status !== "exchanged" && (
+            {/* Action Buttons */}
+            <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
+              {isOwner ? (
+                <>
                   <Link
-                    href={`/book/${book._id}/edit`}
-                    className="btn btn-warning"
+                    href="/requests"
+                    className="btn btn-info btn-outline w-full sm:w-auto"
                   >
-                    Edit Book
+                    Check Requests
                   </Link>
-                )}
-              </>
-            ) : (
-              <>
-                {book.status === "available" && !hasRequested && (
-                  <>
-                    <button
-                      onClick={() => handleRequest("rent")}
-                      className="btn btn-success"
-                      disabled={isRequesting}
+                  <Link
+                    href="/library"
+                    className="btn btn-accent btn-outline w-full sm:w-auto"
+                  >
+                    Go to Your Library
+                  </Link>
+                  {book.status !== "exchanged" && (
+                    <Link
+                      href={`/book/${book._id}/edit`}
+                      className="btn btn-warning btn-outline w-full sm:w-auto"
                     >
-                      Request to Rent
-                    </button>
-                    <button
-                      onClick={() => handleRequest("exchange")}
-                      className="btn btn-warning"
-                      disabled={isRequesting}
-                    >
-                      Request to Exchange
-                    </button>
-                  </>
-                )}
-
-                {book.status !== "available" && (
-                  <p className="text-info text-sm italic">
-                    This book is currently {book.status}.
-                  </p>
-                )}
-
-                {hasRequested && (
-                  <div className="flex flex-col gap-2">
-                    <p className="text-info text-sm italic">
-                      You’ve already requested this book.
-                    </p>
-
-                    {myRequest?.status === "pending" && (
+                      Edit Book
+                    </Link>
+                  )}
+                </>
+              ) : (
+                <>
+                  {book.status === "available" && !hasRequested ? (
+                    <>
                       <button
-                        onClick={handleCancelRequest}
-                        className="btn btn-error"
+                        onClick={() => handleRequest("rent")}
+                        className="btn btn-success btn-outline w-full sm:w-auto"
                         disabled={isRequesting}
                       >
-                        Cancel Request
+                        Request to Rent
                       </button>
-                    )}
+                      <button
+                        onClick={() => handleRequest("exchange")}
+                        className="btn btn-warning btn-outline w-full sm:w-auto"
+                        disabled={isRequesting}
+                      >
+                        Request to Exchange
+                      </button>
+                    </>
+                  ) : (
+                    <p className="text-info text-sm italic">
+                      This book is currently {book.status}.
+                    </p>
+                  )}
 
-                    {myRequest?.status !== "pending" && (
-                      <p className="text-sm text-gray-600">
-                        Request status: {myRequest?.status}
+                  {hasRequested && (
+                    <div className="flex w-full flex-col gap-2">
+                      <p className="text-info text-sm italic">
+                        You&apos;ve already requested this book.
                       </p>
-                    )}
-                  </div>
-                )}
 
-                <Link href="/library" className="btn btn-accent">
-                  Go to Your Library
-                </Link>
-              </>
-            )}
+                      {myRequest?.status === "pending" ? (
+                        <button
+                          onClick={handleCancelRequest}
+                          className="btn btn-error btn-outline w-full sm:w-auto"
+                          disabled={isRequesting}
+                        >
+                          Cancel Request
+                        </button>
+                      ) : (
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          Request status: {myRequest?.status}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  <Link
+                    href="/library"
+                    className="btn btn-outline w-full sm:w-auto"
+                  >
+                    Go to Your Library
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>

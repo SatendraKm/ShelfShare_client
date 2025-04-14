@@ -5,6 +5,7 @@ import api from "@/lib/api";
 import toast from "react-hot-toast";
 import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Page() {
   const router = useRouter();
@@ -125,7 +126,6 @@ export default function Page() {
           <input
             id="profileImage"
             type="file"
-            disabled
             accept="image/*"
             className="file-input file-input-bordered w-full"
             onChange={(e) => {
@@ -167,7 +167,7 @@ export default function Page() {
               id="password"
               type={showPassword ? "text" : "password"}
               className="input input-bordered w-full pr-12"
-              placeholder="••••••••"
+              placeholder="Enter Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -193,7 +193,7 @@ export default function Page() {
             id="confirmPassword"
             type="password"
             className="input input-bordered w-full"
-            placeholder="••••••••"
+            placeholder="Confirm Password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
@@ -227,9 +227,9 @@ export default function Page() {
 
         <p className="mt-6 text-center text-sm">
           Already have an account?{" "}
-          <a href="/login" className="text-blue-600 hover:underline">
+          <Link href="/login" className="text-blue-600 hover:underline">
             Login here
-          </a>
+          </Link>
         </p>
       </form>
     </div>

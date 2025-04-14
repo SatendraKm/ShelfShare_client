@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/api";
 import toast from "react-hot-toast";
+import Link from "next/link";
 
 export default function Page() {
   const [emailId, setEmailId] = useState("");
@@ -30,9 +31,7 @@ export default function Page() {
     try {
       const res = await api.post("/login", { emailId, password });
       dispatch({ type: "LOGIN", payload: res.data.data });
-      console.log(res);
     } catch (err) {
-      console.error(err);
       const message = err.response?.data?.message || "Something went wrong!";
       setError(message);
       toast.error(message);
@@ -42,12 +41,14 @@ export default function Page() {
   };
 
   return (
-    <div className="w-full max-w-sm rounded-xl p-6 shadow-xl">
+    <div className="w-full max-w-sm rounded-xl p-6 shadow-xl backdrop-blur-md">
       <form onSubmit={handleSubmit}>
-        <h2 className="mb-6 text-center text-2xl font-semibold">Login</h2>
+        <h2 className="mb-6 text-center text-2xl font-semibold">
+          Welcome Back
+        </h2>
 
         {error && (
-          <div className="mb-4 rounded-md bg-red-100 px-3 py-2 text-sm text-red-600">
+          <div className="mb-4 rounded-md bg-red-100 px-3 py-2 text-sm text-red-600 dark:bg-red-300">
             {error}
           </div>
         )}
@@ -76,7 +77,7 @@ export default function Page() {
               id="password"
               type={showPassword ? "text" : "password"}
               className="input input-bordered w-full pr-12"
-              placeholder="••••••••"
+              placeholder="Enter Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -84,25 +85,25 @@ export default function Page() {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute top-1/2 right-2 -translate-y-1/2 text-sm text-blue-600 hover:underline"
+              className="absolute top-1/2 right-2 -translate-y-1/2 text-xs text-blue-600 hover:underline"
             >
               {showPassword ? "Hide" : "Show"}
             </button>
           </div>
         </div>
 
-        <div className="mb-6 flex items-center justify-between">
-          <a
+        <div className="mb-6 text-right">
+          <Link
             href="/forgot-password"
             className="text-sm text-blue-600 hover:underline"
           >
             Forgot password?
-          </a>
+          </Link>
         </div>
 
         <button
           type="submit"
-          className="btn btn-neutral flex w-full items-center justify-center"
+          className="btn btn-neutral w-full"
           disabled={isSubmitting}
         >
           {isSubmitting ? (
@@ -113,10 +114,10 @@ export default function Page() {
         </button>
 
         <p className="mt-6 text-center text-sm">
-          Don’t have an account?{" "}
-          <a href="/signup" className="text-blue-600 hover:underline">
+          Don&apos;t have an account?{" "}
+          <Link href="/signup" className="text-blue-600 hover:underline">
             Create one
-          </a>
+          </Link>
         </p>
       </form>
     </div>

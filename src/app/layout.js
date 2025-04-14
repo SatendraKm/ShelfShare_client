@@ -28,7 +28,7 @@ export default function RootLayout({ children }) {
         <Providers>
           <div className="flex min-h-screen flex-col">
             <Navbar />
-            {children}
+            <main className="flex-1 px-4 py-4 md:px-8">{children}</main>
             <Toaster position="top-center" reverseOrder={false} />
           </div>
         </Providers>
