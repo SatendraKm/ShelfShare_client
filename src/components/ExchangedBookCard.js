@@ -1,15 +1,23 @@
-// components/ExchangedBookCard.js
+import { Repeat } from "lucide-react";
+import Link from "next/link";
 
 export default function ExchangedBookCard({ book }) {
   return (
-    <div className="rounded-lg border p-4 shadow transition hover:shadow-md">
-      <h2 className="mb-2 text-xl font-semibold">{book.title}</h2>
-      <p className="mb-1 text-gray-600">Author: {book.author}</p>
-      <p className="mb-1 text-gray-600">Genre: {book.genre}</p>
-      <p className="text-sm text-gray-500">
-        Exchanged with:{" "}
-        <span className="font-medium">{book.ownerId?.fullName}</span>
-      </p>
+    <div className="card bg-base-100 border shadow-sm transition hover:shadow-md">
+      <Link href={`book/${book._id}`}>
+        <div className="card-body space-y-2">
+          <h2 className="card-title">{book.title}</h2>
+          <p className="text-sm text-gray-600">by {book.author}</p>
+          <p className="text-sm text-gray-500">Genre: {book.genre}</p>
+          <div className="text-sm text-gray-500">
+            Exchanged with:{" "}
+            <span className="font-medium">{book.ownerId?.fullName}</span>
+          </div>
+          <div className="mt-2 flex items-center gap-1 text-xs text-gray-400">
+            <Repeat size={14} /> Completed Exchange
+          </div>
+        </div>
+      </Link>
     </div>
   );
 }

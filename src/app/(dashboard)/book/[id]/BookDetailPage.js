@@ -124,7 +124,7 @@ export default function BookDetailPage({ bookId }) {
                 <strong>Author:</strong> {book.author}
               </p>
               <p>
-                <strong>Genre:</strong> {book.genre}
+                <strong>Genre:</strong> {book.genres.join(", ")}
               </p>
               <p>
                 <strong>Location:</strong> {book.location}

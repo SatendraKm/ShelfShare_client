@@ -10,48 +10,55 @@ import ExchangedBookCard from "@/components/ExchangedBookCard";
 
 export default function LibraryPage() {
   const { user } = useAuth();
+
   const [activeTab, setActiveTab] = useState("owned");
   const [ownedBooks, setOwnedBooks] = useState([]);
   const [rentedBooks, setRentedBooks] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState(null);
   const [exchangedBooks, setExchangedBooks] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const handleDeleteBook = (book) => {
-    setDeleteTarget(book);
-  };
+  const [deleteTarget, setDeleteTarget] = useState(null);
   const [returnTarget, setReturnTarget] = useState(null);
 
-  const confirmReturnBook = async () => {
-    if (!returnTarget) return;
+  // Fetch owned books
+  const fetchOwnedBooks = async () => {
     try {
-      await api.put(`/book/${returnTarget._id}/mark-returned`);
-      toast.success("Book marked as returned");
-      fetchRentedBooks();
+      setLoading(true);
+      const res = await api.get("/my-books");
+      setOwnedBooks(res.data.data);
     } catch (err) {
-      console.error("Return failed:", err);
-      toast.error("Failed to mark as returned");
+      console.error("Failed to fetch owned books:", err);
     } finally {
-      setReturnTarget(null);
-    }
-  };
-  const handleReturnBook = (bookId) => {
-    const book = rentedBooks.find((b) => b._id === bookId);
-    if (book) {
-      setReturnTarget(book);
+      setLoading(false);
     }
   };
 
-  // const handleReturnBook = async (bookId) => {
-  //   try {
-  //     await api.put(`/book/${bookId}/mark-returned`);
-  //     toast.success("Book returned successfully");
-  //     fetchRentedBooks(); // refresh after return
-  //   } catch (err) {
-  //     console.error("Return failed:", err);
-  //     toast.error("Failed to return book");
-  //   }
-  // };
+  // Fetch rented books
+  const fetchRentedBooks = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get("/my-rented-books");
+      setRentedBooks(res.data.data);
+    } catch (err) {
+      console.error("Failed to fetch rented books:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch exchanged books
+  const fetchExchangedBooks = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get("/my-exchanged-books");
+      setExchangedBooks(res.data.data);
+    } catch (err) {
+      console.error("Failed to fetch exchanged books:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const confirmDelete = async () => {
     if (!deleteTarget) return;
     try {
@@ -66,107 +73,94 @@ export default function LibraryPage() {
     }
   };
 
-  const fetchRentedBooks = async () => {
+  const confirmReturnBook = async () => {
+    if (!returnTarget) return;
     try {
-      setLoading(true);
-      const res = await api.get("/my-rented-books"); // update this to your actual route
-      console.log(res);
-      setRentedBooks(res.data.data);
+      await api.put(`/book/${returnTarget._id}/mark-returned`);
+      toast.success("Book marked as returned");
+      fetchRentedBooks();
     } catch (err) {
-      console.error("Failed to fetch rented books:", err);
+      console.error("Return failed:", err);
+      toast.error("Failed to mark as returned");
     } finally {
-      setLoading(false);
+      setReturnTarget(null);
     }
   };
 
-  const fetchOwnedBooks = async () => {
-    try {
-      setLoading(true);
-      const res = await api.get("/my-books");
-      console.log(res);
-      setOwnedBooks(res.data.data);
-    } catch (err) {
-      console.error("Failed to fetch owned books:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-  const fetchExchangedBooks = async () => {
-    try {
-      setLoading(true);
-      const res = await api.get("/my-exchanged-books");
-      setExchangedBooks(res.data.data);
-    } catch (err) {
-      console.error("Failed to fetch exchanged books:", err);
-    } finally {
-      setLoading(false);
-    }
+  const handleDeleteBook = (book) => setDeleteTarget(book);
+  const handleReturnBook = (bookId) => {
+    const book = rentedBooks.find((b) => b._id === bookId);
+    if (book) setReturnTarget(book);
   };
 
   useEffect(() => {
     if (!user) return;
 
-    if (user.role === "owner") fetchOwnedBooks();
     fetchRentedBooks();
     fetchExchangedBooks();
+    if (user.role === "owner") fetchOwnedBooks();
   }, [user]);
 
   const renderTabContent = () => {
-    if (activeTab === "owned" && user?.role === "owner") {
-      return (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {ownedBooks.length === 0 ? (
-            <p className="text-gray-500">You haven’t added any books yet.</p>
-          ) : (
-            ownedBooks.map((book) => (
-              <OwnedBookCard
-                key={book._id}
-                book={book}
-                onDelete={handleDeleteBook}
-              />
-            ))
-          )}
-        </div>
-      );
-    }
-    if (activeTab === "rented") {
-      return (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {rentedBooks.length === 0 ? (
-            <p className="text-gray-500">You haven’t rented any books yet.</p>
-          ) : (
-            rentedBooks.map((book) => (
-              <RentedBookCard
-                key={book._id}
-                book={book}
-                onReturn={handleReturnBook}
-              />
-            ))
-          )}
-        </div>
-      );
-    }
-    if (activeTab === "exchanged") {
-      return (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {exchangedBooks.length === 0 ? (
-            <p className="text-gray-500">
-              You haven’t exchanged any books yet.
-            </p>
-          ) : (
-            exchangedBooks.map((book) => (
-              <ExchangedBookCard key={book._id} book={book} />
-            ))
-          )}
-        </div>
-      );
-    }
+    if (loading) return <p>Loading...</p>;
 
-    return <p className="text-gray-500">Select a tab to view data.</p>;
+    switch (activeTab) {
+      case "owned":
+        return (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {ownedBooks.length === 0 ? (
+              <p className="text-gray-500">You haven’t added any books yet.</p>
+            ) : (
+              ownedBooks.map((book) => (
+                <OwnedBookCard
+                  key={book._id}
+                  book={book}
+                  onDelete={handleDeleteBook}
+                />
+              ))
+            )}
+          </div>
+        );
+
+      case "rented":
+        return (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {rentedBooks.length === 0 ? (
+              <p className="text-gray-500">You haven’t rented any books yet.</p>
+            ) : (
+              rentedBooks.map((book) => (
+                <RentedBookCard
+                  key={book._id}
+                  book={book}
+                  onReturn={handleReturnBook}
+                />
+              ))
+            )}
+          </div>
+        );
+
+      case "exchanged":
+        return (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {exchangedBooks.length === 0 ? (
+              <p className="text-gray-500">
+                You haven’t exchanged any books yet.
+              </p>
+            ) : (
+              exchangedBooks.map((book) => (
+                <ExchangedBookCard key={book._id} book={book} />
+              ))
+            )}
+          </div>
+        );
+
+      default:
+        return <p className="text-gray-500">Select a tab to view books.</p>;
+    }
   };
 
   const tabs = ["rented", "exchanged"];
-  if (user?.role === "owner") tabs.unshift("owned");
+  if (user?.role === "owner") tabs.push("owned");
 
   return (
     <div className="mx-auto max-w-5xl p-4">
@@ -189,9 +183,11 @@ export default function LibraryPage() {
         ))}
       </div>
 
-      {loading ? <p>Loading...</p> : renderTabContent()}
+      {renderTabContent()}
+
+      {/* Delete Modal */}
       {deleteTarget && (
-        <dialog id="delete_modal" className="modal modal-open">
+        <dialog className="modal modal-open">
           <div className="modal-box">
             <h3 className="text-lg font-bold">Confirm Delete</h3>
             <p className="py-4">
@@ -212,8 +208,10 @@ export default function LibraryPage() {
           </div>
         </dialog>
       )}
+
+      {/* Return Modal */}
       {returnTarget && (
-        <dialog id="return_modal" className="modal modal-open">
+        <dialog className="modal modal-open">
           <div className="modal-box">
             <h3 className="text-lg font-bold">Confirm Return</h3>
             <p className="py-4">

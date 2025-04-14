@@ -91,6 +91,9 @@ export default function EditProfilePage() {
 
   return (
     <div className="mx-auto max-w-lg p-4">
+      <h1 className="mb-6 text-3xl font-bold text-red-500 underline">
+        Note- currently disabled due to CORS error for Patch errors
+      </h1>
       <h1 className="mb-6 text-3xl font-bold">Edit Profile</h1>
 
       <form onSubmit={handleProfileUpdate} className="space-y-4">
@@ -124,6 +127,7 @@ export default function EditProfilePage() {
             accept="image/*"
             onChange={handleImageChange}
             className="input input-bordered w-full"
+            disabled
           />
           {/* Image Preview */}
           {imagePreview && (
@@ -143,7 +147,7 @@ export default function EditProfilePage() {
         <button
           type="submit"
           className="btn btn-primary w-full"
-          disabled={loading}
+          disabled={true}
         >
           {loading ? "Saving..." : "Save Changes"}
         </button>
@@ -177,7 +181,7 @@ export default function EditProfilePage() {
         <button
           type="submit"
           className="btn btn-outline w-full"
-          disabled={loading}
+          disabled={true}
         >
           {loading ? "Updating..." : "Change Password"}
         </button>

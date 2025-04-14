@@ -61,6 +61,7 @@ export default function ProfilePage() {
           <div>
             <p className="text-xl font-semibold">{user.fullName}</p>
             <p className="text-gray-600">{user.emailId}</p>
+            <p className="text-gray-600">{user.phoneNumber}</p>
             <p className="text-sm text-gray-500 capitalize">
               Role: {user.role}
             </p>
