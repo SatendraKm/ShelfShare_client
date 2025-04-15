@@ -17,6 +17,7 @@ Peer-to-Peer Book Exchange Portal for Book owners and Book seekers
 6. [State Management](#state-management)
 7. [Styling](#styling)
 
+
 ## Introduction
 The frontend of **ShelfShare** is built using **React.js** and **Next.js**. It provides a user-friendly interface for browsing, listing, borrowing, and exchanging books. The frontend communicates with the backend via API calls and handles routing, user authentication, and dynamic rendering of book data.
 
@@ -50,8 +51,13 @@ cd ShelfShare-client
 3. set the .env file at the root directory
 ```bash
 NEXT_PUBLIC_API_BASE_URL=http://localhost:5000
-``` 
-3. Install dependencies:
+```
+or
+```bash
+NEXT_PUBLIC_API_BASE_URL=https://shelfshare-server.onrender.com
+```
+
+4. Install dependencies:
 ```bash
 npm install
 ```
